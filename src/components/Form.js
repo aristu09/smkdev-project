@@ -1,23 +1,57 @@
-const Form = (input, setInput, todos, setTodos) => {
-  const onSubmit = (e) => {
-    e.preventDefault([
-      ...todos,
-      {
-        id: Math.random() * 1000,
-        title: input,
-        completed: false,
-      },
-    ]);
+import React, { useEffect } from "react";
+
+import { v4 as uuidv4 } from "uuid";
+
+const Form = ({ input, setInput, todos, setTodos, editTodo, setEditTodo }) => {
+  //untuk update
+  const updateTodo = (title, id, completed) => {
+    const newTodo = todos.map((todo) =>
+      todo.id === id ? { title, id, completed } : todo
+    );
+    setTodos(newTodo);
+    setEditTodo("");
+  };
+
+  useEffect(() => {
+    if (editTodo) {
+      setInput(editTodo.title);
+    } else {
+      setInput("");
+    }
+  }, [setInput, editTodo]);
+
+  const onInputChange = (e) => {
+    setInput(e.target.value);
+  };
+
+  const onFormSubmit = (e) => {
+    e.preventDefault();
+    if (!editTodo) {
+      setTodos([
+        ...todos,
+        {
+          id: uuidv4(),
+          title: input,
+          completed: false,
+        },
+      ]);
+      setInput("");
+    } else {
+      updateTodo(input, editTodo.id, editTodo.completed);
+    }
   };
   return (
-    <form action="">
+    <form onSubmit={onFormSubmit}>
       <input
         type="text"
         placeholder="Enter task"
         className="task-input"
+        value={input}
+        onChange={onInputChange}
       ></input>
+
       <button type="submit" className="button-add">
-        Add
+        {editTodo ? "OK" : "Add"}
       </button>
     </form>
   );
